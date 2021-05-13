@@ -1,5 +1,7 @@
 package leetcode;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -165,47 +167,53 @@ public class Leetcode {
     }
 
     //计算器（栈）  https://leetcode-cn.com/problems/calculator-lcci/
+    //定义两个栈，一个数栈，一个运算符栈
     public static int calculate(String s) {
+        Stack<Integer> numStack = new Stack<Integer>();     //操作数栈
 
-        char[] chars = s.toCharArray();
-        Stack<String> stack = new Stack();
+        Stack<Character> operStack = new Stack<Character>();    //运算符栈
 
+        Map<Character, Integer> map = new HashMap<Character, Integer>();
+        map.put('+', 1);
+        map.put('-', 1);
+        map.put('*', 1);
+        map.put('/', 1);
+
+        char[] chs = s.toCharArray();
 
         StringBuilder sb = new StringBuilder();
-        for(char ch:chars) {
-            if(ch == ' '){
-                continue;
-            }
-            if(ch != '+' && ch != '-' && ch != '*' &&  ch != '/' ){
+        for(char ch:chs) {
+            if(ch == '+' || ch == '-' || ch == '*' || ch == '/'){
+                numStack.push(Integer.valueOf(sb.toString()));
+                sb.delete(0, sb.length());
+                if(operStack.size() == 0){
+                    operStack.push(ch);
+                }else {
+                    char oper = operStack.pop();
+                    int n1 = map.get(ch);
+                    int n2 = map.get(oper);
+                    if(n2 <= n1) {
+                        int num2 = numStack.pop();
+                        int num1 = numStack.pop();
+                        int res = 0;
+                        if(oper == '+') {
+                            res = num1 + num2;
+                        }
+                        if(oper == '-') {
+                            res = num1 - num2;
+                        }
+                        operStack.push(ch);
+                        numStack.push(res);
+                    }else {
+                        operStack.push(oper);
+                        operStack.push(ch);
+                    }
+                }
+            }else {
                 sb.append(ch);
-            }else {
-                stack.push(sb.toString());
-
-                if( )
-
             }
         }
-        if(sb.length() > 0) {
-            stack.push(sb.toString());
-        }
-
-        int res = 0;
-        while(stack.size() != 1) {
-            int num1 = Integer.valueOf(stack.pop());
-            String oper = stack.pop();
-            int num2 = Integer.valueOf(stack.pop());
-
-            if(oper.equals("+")) {
-                int num = num1 + num2;
-                res += num;
-                stack.push(String.valueOf(res));
-            }else {
-                int num = num1 - num2;
-                res += num;
-                stack.push(String.valueOf(res));
-            }
-        }
-        return Integer.valueOf(stack.pop());
+        return numStack.pop();
     }
 
     public static void main(String[] args) {
@@ -237,7 +245,7 @@ public class Leetcode {
 
         addTwoNumbers(l1, l8);
 
-        System.out.println(calculate("3+2*2"));
+        System.out.println(calculate("0-1-1"));
     }
 
 }
