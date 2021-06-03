@@ -1,8 +1,7 @@
 package leetcode;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import javax.xml.soap.SAAJResult;
+import java.util.*;
 
 /**
  * description: Leetcode <br>
@@ -166,6 +165,16 @@ public class Leetcode {
         return res.next;
     }
 
+    //反转链表 https://leetcode-cn.com/problems/fan-zhuan-lian-biao-lcof/
+    //定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
+    //输入: 1->2->3->4->5->NULL
+    //输出: 5->4->3->2->1->NULL
+    public static ListNode reverseList2(ListNode head) {
+
+
+        return null;
+    }
+
     //计算器（栈）  https://leetcode-cn.com/problems/calculator-lcci/
     //定义两个栈，一个数栈，一个运算符栈
     public static int calculate(String s) {
@@ -176,13 +185,16 @@ public class Leetcode {
         Map<Character, Integer> map = new HashMap<Character, Integer>();
         map.put('+', 1);
         map.put('-', 1);
-        map.put('*', 1);
-        map.put('/', 1);
+        map.put('*', 2);
+        map.put('/', 2);
 
         char[] chs = s.toCharArray();
 
         StringBuilder sb = new StringBuilder();
         for(char ch:chs) {
+            if(ch == ' '){
+                continue;
+            }
             if(ch == '+' || ch == '-' || ch == '*' || ch == '/'){
                 numStack.push(Integer.valueOf(sb.toString()));
                 sb.delete(0, sb.length());
@@ -192,7 +204,7 @@ public class Leetcode {
                     char oper = operStack.pop();
                     int n1 = map.get(ch);
                     int n2 = map.get(oper);
-                    if(n2 <= n1) {
+                    if(n1 <= n2) {
                         int num2 = numStack.pop();
                         int num1 = numStack.pop();
                         int res = 0;
@@ -201,6 +213,12 @@ public class Leetcode {
                         }
                         if(oper == '-') {
                             res = num1 - num2;
+                        }
+                        if(oper == '*') {
+                            res = num1 * num2;
+                        }
+                        if(oper == '/') {
+                            res = num1 / num2;
                         }
                         operStack.push(ch);
                         numStack.push(res);
@@ -213,7 +231,111 @@ public class Leetcode {
                 sb.append(ch);
             }
         }
+        if(sb.length() > 0) {
+            numStack.push(Integer.valueOf(sb.toString()));
+        }
+        int res = 0;
+        while(operStack.size() > 0) {
+            int num2 = numStack.pop();
+            int num1 = numStack.pop();
+            char oper = operStack.pop();
+            switch (oper){
+                case '+':
+                    res = num1 + num2;
+                    numStack.push(res);
+                    break;
+                case '-':
+                    res = num1 - num2;
+                    numStack.push(res);
+                    break;
+                case '*':
+                    res = num1 * num2;
+                    numStack.push(res);
+                    break;
+                case '/':
+                    res = num1 / num2;
+                    numStack.push(res);
+                    break;
+            }
+        }
         return numStack.pop();
+    }
+
+    public static String compressString(String S) {
+
+        int count = 0;
+        char[] chArr = S.toCharArray();
+        char curretnChar = chArr[0];
+        if(chArr.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for(char ch:chArr) {
+            if(ch == curretnChar) {
+                count++;
+            }else {
+                sb.append(curretnChar);
+                sb.append(count);
+                curretnChar = ch;
+                count = 1;
+            }
+        }
+        sb.append(curretnChar);
+        sb.append(count);
+
+        String compressStr = sb.toString();
+        if(compressStr.length() >= S.length()){
+            return S;
+        }else {
+            return compressStr;
+        }
+    }
+
+
+    public static ListNode removeDuplicateNodes(ListNode head) {
+        ListNode currentNode = head;
+        while(currentNode != null) {
+            int val = currentNode.val;
+
+            ListNode innerCurrentNode = currentNode;
+            while(innerCurrentNode != null && innerCurrentNode.next != null) {
+                int innerVal = innerCurrentNode.next.val;
+
+                if(innerVal == val) {
+                    if(innerCurrentNode.next.next != null) {
+                        innerCurrentNode.next = innerCurrentNode.next.next;
+                        continue;
+                    }else {
+                        innerCurrentNode.next = null;
+                    }
+                }
+                innerCurrentNode = innerCurrentNode.next;
+            }
+
+            currentNode = currentNode.next;
+        }
+        return head;
+    }
+
+    public static ListNode removeDuplicateNodes2(ListNode head) {
+        ListNode currentNode = head;
+        Set<Integer> list = new HashSet<Integer>();
+        while (currentNode != null && currentNode.next != null) {
+            int val1 = currentNode.val;
+            int val2 = currentNode.next.val;
+            if(list.contains(val2)) {
+                currentNode.next = currentNode.next.next;
+            }
+            if(val1 != val2) {
+                list.add(val1);
+                list.add(val2);
+                currentNode = currentNode.next;
+            }else{
+                list.add(val1);
+                currentNode.next = currentNode.next.next;
+            }
+        }
+        return head;
     }
 
     public static void main(String[] args) {
@@ -235,17 +357,27 @@ public class Leetcode {
         l5.next = l6;
         l6.next = l7;
 
-        ListNode l8 = new ListNode(9);
-        ListNode l9 = new ListNode(9);
-        ListNode l10 = new ListNode(9);
-        ListNode l11 = new ListNode(9);
+        ListNode l8 = new ListNode(1);
+        ListNode l9 = new ListNode(1);
+        ListNode l10 = new ListNode(2);
+        ListNode l11 = new ListNode(1);
+        ListNode l12 = new ListNode(1);
         l8.next = l9;
         l9.next = l10;
         l10.next = l11;
+        l11.next = l12;
+        ListNode res = removeDuplicateNodes2(l8);
+        while(res != null) {
+            int val = res.val;
+            System.out.println(val);
+            res = res.next;
+        }
 
-        addTwoNumbers(l1, l8);
-
-        System.out.println(calculate("0-1-1"));
+//        addTwoNumbers(l1, l8);
+//
+//        System.out.println(calculate("1*2-3/4+5*6-7*8+9/10"));
+//
+//        System.out.println(compressString(""));
     }
 
 }
